@@ -1,5 +1,8 @@
+<div align="center">
 
 ![inception badge](https://github.com/byaliego/42-project-badges/blob/main/badges/inceptionm.png)
+
+</div>
 
 # Inception
 > A project about containers
@@ -32,7 +35,7 @@ Docker Compose simplifies the process of orchestrating and managing containers, 
 
 ### Service of your choice
 
-For this project, I decided to include two additional services. I created a specific monitoring network where Grafana is responsible for visualizing the data served by Prometheus and Cadvisor. Additionally, I paid a small tribute to the website that has taught me so much about Docker and has an incredible community - Linuxtips.com. I deployed an application called "Giropops Senhas," which was entirely created during a live session by Jeferson with active participation from the community in the repository "giropops senhas."
+For this project, I decided to include two additional services. I created a specific monitoring network where Grafana is responsible for visualizing the data served by Prometheus and Cadvisor. Additionally, I paid a small tribute to the website that has taught me so much about Docker and has an incredible community - Linuxtips.com. I deployed an application called "Giropops Senhas," which was entirely created during a live session by Jeferson.
 
 ## Inception Diagram
 
