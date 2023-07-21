@@ -11,8 +11,6 @@ In this project, the main objective is to build a small-scale infrastructure wit
 
 Docker Compose simplifies the process of orchestrating and managing containers, making it easier to deploy, maintain, and scale the infrastructure. By following specific rules and best practices, this project will result in a cohesive and functional environment, ideal for small-scale projects or as a foundation for more complex infrastructures in the future.
 
-![](header.png)
-
 ## Mandatory
 
 * NGINX with TLSv1.2 or TLSv1.3 only.
@@ -29,7 +27,7 @@ Docker Compose simplifies the process of orchestrating and managing containers, 
 
 * Redis cache for your WordPres
 * FTP server container pointing to the volume of your WordPress website
-* static website in the language of your choice except PHP
+* Static website in the language of your choice except PHP
 * Adminer
 * Service of your choice that you think is useful
 
