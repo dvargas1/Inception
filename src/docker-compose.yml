@@ -1,0 +1,212 @@
+version: "3"
+
+services:
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb
+    mem_limit: 2G
+    cpus: 2
+    restart: on-failure
+    ports:
+      - "3306"
+    env_file:
+      - .env
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - net
+
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    ports:
+      - "443:443"
+    depends_on:
+      wordpress:
+        condition: service_started
+      grafana:
+        condition: service_healthy
+      adminer:
+        condition: service_healthy
+      senhas:
+        condition: service_healthy
+      static-page:
+        condition: service_healthy
+    volumes:
+      - wordpress_data:/wp
+    restart: always
+    networks:
+      - monitor_net
+      - net
+      - redis_net
+      - pass_net
+      - static_net
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress
+    restart: on-failure
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - wordpress_data:/wp
+    ports:
+      - "9000"
+    networks:
+      - net
+      - ftp_net
+      - redis_net
+
+#### BONUS ####
+  ftp:
+    container_name: ftp
+    build: ./requirements/ftp
+    mem_limit: 1G
+    cpus: 1
+    restart: on-failure
+    ports:
+      - "20-21:20-21"
+      - "40000-40009:40000-40009"
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    volumes:
+      - wordpress_data:/wp
+    networks:
+      - ftp_net
+
+  redis:
+    container_name: redis
+    mem_limit: 1G
+    cpus: 1
+    build: ./requirements/redis
+    restart: on-failure
+    volumes:
+      - wordpress_data:/wp
+    ports:
+      - "6379"
+    networks:
+      - redis_net
+      - pass_net
+
+  adminer:
+    container_name: adminer
+    build: ./requirements/adminer
+    mem_limit: 2G
+    cpus: 2
+    restart: on-failure
+    ports:
+     - "80"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - net
+
+  static-page:
+    container_name: static-page
+    build: ./requirements/static-page
+    mem_limit: 1G
+    cpus: 1
+    restart: on-failure
+    ports:
+      - "4000"
+    networks:
+      - static_net
+
+  grafana:
+    container_name: grafana
+    build: ./requirements/grafana
+    mem_limit: 2G
+    cpus: 2
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    ports:
+      - "3000"
+    networks:
+      - monitor_net
+
+  prometheus:
+    container_name: prometheus
+    build: ./requirements/prometheus
+    mem_limit: 2G
+    cpus: 2
+    restart: on-failure
+    ports:
+      - "9090"
+    networks:
+      - monitor_net
+
+  cadvisor:
+    container_name: cadvisor
+    build: ./requirements/cadvisor
+    mem_limit: 2G
+    cpus: 2
+    restart: on-failure
+    ports:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitor_net
+
+  senhas:
+    container_name: senhas
+    build: ./requirements/giropopssenha
+    mem_limit: 2G
+    cpus: 2
+    restart: on-failure
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - pass_net
+      - redis_net
+
+networks:
+  net:
+    driver: bridge
+  ftp_net:
+    driver: bridge
+  redis_net:
+    driver: bridge
+  pass_net:
+    driver: bridge
+  static_net:
+    driver: bridge
+  monitor_net:
+    driver: bridge
+
+volumes:
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/dvargas/data/wordpress
+  grafana-storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/dvargas/data/grafana
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/dvargas/data/mariadb
